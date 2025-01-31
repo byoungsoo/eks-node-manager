@@ -128,6 +128,7 @@ Resources:
 ## AlarmSNS
   LambdaInvokeAlarmSNS:
     Type: AWS::SNS::Topic
+    Condition: CreateLambdaInvokeAlarmSNS
     Properties:
       Subscription:
         - Endpoint:
@@ -195,6 +196,7 @@ Resources:
             Resource: '*'
   SchedulerIAMRole:
     Type: AWS::IAM::Role
+    Condition: CreateSchedulerIAMRole
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17

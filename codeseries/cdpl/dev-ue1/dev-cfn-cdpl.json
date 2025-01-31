@@ -21,9 +21,9 @@
                         "runOrder": 1,
                         "configuration": {
                             "BranchName": "main",
-                            "ConnectionArn": "arn:aws:codeconnections:us-east-1:558846430793:connection/7be9bf29-5044-4420-b68a-74dee654c092",
+                            "ConnectionArn": "arn:aws:codeconnections:us-east-1:558846430793:connection/3b5f3566-d8f5-4336-87b0-1ceb7096d4e6",
                             "DetectChanges": "false",
-                            "FullRepositoryId": "byoungsoo/eks-management",
+                            "FullRepositoryId": "bys/eks-node-manager",
                             "OutputArtifactFormat": "CODE_ZIP"
                         },
                         "outputArtifacts": [
@@ -58,7 +58,7 @@
                             "ParameterOverrides": "{\"Alias\": \"bys\", \"AWSAccount\": \"558846430793\", \"CodeS3Bucket\": \"bys-dev-s3-eks-manager\"}",
                             "RoleArn": "arn:aws:iam::558846430793:role/cfnrole",
                             "StackName": "eks-manager-node-upgrade",
-                            "TemplatePath": "SourceArtifact::node-upgrade/cloudformation/cfn-node-upgrade.yaml"
+                            "TemplatePath": "SourceArtifact::cloudformation/cfn-node-upgrade.yaml"
                         },
                         "outputArtifacts": [],
                         "inputArtifacts": [
