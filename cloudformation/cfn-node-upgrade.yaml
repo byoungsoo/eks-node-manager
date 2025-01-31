@@ -128,7 +128,6 @@ Resources:
 ## AlarmSNS
   LambdaInvokeAlarmSNS:
     Type: AWS::SNS::Topic
-    Condition: CreateLambdaInvokeAlarmSNS
     Properties:
       Subscription:
         - Endpoint:
