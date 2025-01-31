@@ -46,7 +46,7 @@ phases:
       ### CodeArtifact ###
       - |
         if [ "${ENVIRONMENT}" == "dev" ]; then
-          aws codeartifact login --tool pip --repository bys-dev-codeartifact-python --domain ca-python --domain-owner 558846430793 --region ${REGION}
+          aws codeartifact login --tool pip --repository bys-dev-codeartifact-python --domain ca-python --domain-owner 558846430793 --region ap-northeast-1
         elif [ "${ENVIRONMENT}" == "shared" ]; then
           echo "Later"
         fi
