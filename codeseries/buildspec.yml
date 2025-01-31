@@ -57,7 +57,6 @@ phases:
       - ls -al
 
       - cp node_upgrade_lambda_function.py lambda_function.py
-      - cp node_upgrade.py node_upgrade.py
       - pip install --target package -r requirements.txt
       - zip -rq ${APP_NAME}.zip package
       - zip ${APP_NAME}.zip lambda_function.py
