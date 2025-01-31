@@ -51,23 +51,6 @@ Parameters:
     Description: "Code file name including specific path, ex. /specific/path/eks_node_manager.zip"
     Default: "node/eks_node_manager.zip"
 
-
-Conditions:
-  CreateEKSNodeUpgradeLambdaIAMRole: !Not
-    - !Equals
-      - !Ref EKSManagerNodeUpgradeLambdaRoleName
-      - "EKSManagerNodeUpgradeLambdaRole"
-
-  CreateEKSManagerEKSFullAccessPolicy: !Not
-    - !Equals
-      - !Ref EKSManagerPolicyName
-      - "EKSManagerEKSFullAccessPolicy"
-
-  CreateSchedulerIAMRole: !Not
-    - !Equals
-      - !Ref EKSManagerNodeUpgradeSchedulerRoleName
-      - "EKSManagerNodeUpgradeSchedulerRole"
-
 Resources:
 ## Lambda
   EKSNodeUpgradeLambda:
@@ -76,7 +59,7 @@ Resources:
       FunctionName:
         Ref: EKSManagerNodeUpgradeLambdaName
 #      Architectures: x86_64
-      Role: {"Fn::GetAtt" : ["EKSNodeUpgradeLambdaIAMRole", Arn] }
+      Role: "arn:aws:iam::558846430793:role/EKSManagerNodeUpgradeLambdaRole"
       Code:
         S3Bucket:
           Ref: CodeS3Bucket
@@ -124,7 +107,7 @@ Resources:
         Mode: 'FLEXIBLE'
       Target:
         Arn: {"Fn::GetAtt" : ["EKSNodeUpgradeLambda", Arn] }
-        RoleArn: {"Fn::GetAtt" : ["SchedulerIAMRole", Arn] }
+        RoleArn: "arn:aws:iam::558846430793:role/EKSManagerNodeUpgradeSchedulerRole"
         RetryPolicy:
           MaximumEventAgeInSeconds: 86400
           MaximumRetryAttempts: 3
@@ -161,69 +144,3 @@ Resources:
       TreatMissingData: missing
       AlarmActions:
         - {"Fn::GetAtt" : ["LambdaInvokeAlarmSNS", TopicArn] }
-## IAM
-  EKSNodeUpgradeLambdaIAMRole:
-    Type: AWS::IAM::Role
-    Condition: CreateEKSNodeUpgradeLambdaIAMRole
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - 'sts:AssumeRole'
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonEC2FullAccess
-        - arn:aws:iam::aws:policy/AmazonSSMFullAccess
-        - arn:aws:iam::aws:policy/AmazonS3FullAccess
-        - arn:aws:iam::aws:policy/AutoScalingFullAccess
-        - Fn::GetAtt: [ 'EKSManagerEKSFullAccessPolicy', PolicyArn ]
-      RoleName:
-        Ref: EKSManagerNodeUpgradeLambdaRoleName
-  EKSManagerEKSFullAccessPolicy:
-    Type: AWS::IAM::ManagedPolicy
-    Condition: CreateEKSManagerEKSFullAccessPolicy
-    Properties:
-      ManagedPolicyName:
-        Ref: EKSManagerPolicyName
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: Allow
-            Action:
-              - 'eks:*'
-            Resource: '*'
-  SchedulerIAMRole:
-    Type: AWS::IAM::Role
-    Condition: CreateSchedulerIAMRole
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - scheduler.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      RoleName:
-        Ref: EKSManagerNodeUpgradeSchedulerRoleName
-
-  SchedulerPolicy:
-    Type: AWS::IAM::Policy
-    Condition: CreateSchedulerIAMRole  # 역할을 생성할 경우에만 정책 생성
-    Properties:
-      PolicyName: EventBridgeSchedulerExecutionPolicy-EKSManagerNodeUpgrade
-      Roles:
-        - !Ref SchedulerIAMRole
-      PolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Action:
-              - 'lambda:InvokeFunction'
-            Resource:
-              - !Sub 'arn:aws:lambda:ap-northeast-2:${AWSAccount}:function:*'
