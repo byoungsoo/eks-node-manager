@@ -58,7 +58,7 @@
                             "ParameterOverrides": "{\"Alias\": \"bys\", \"AWSAccount\": \"558846430793\", \"CodeS3Bucket\": \"bys-dev-s3-eks-manager\"}",
                             "RoleArn": "arn:aws:iam::558846430793:role/cfnrole",
                             "StackName": "eks-manager-node-upgrade",
-                            "TemplatePath": "SourceArtifact::node-upgrade/cloudformation/cfn-node-upgrade.yaml"
+                            "TemplatePath": "SourceArtifact::cloudformation/cfn-node-upgrade.yaml"
                         },
                         "outputArtifacts": [],
                         "inputArtifacts": [

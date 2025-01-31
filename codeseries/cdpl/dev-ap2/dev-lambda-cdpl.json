@@ -50,8 +50,8 @@
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ProjectName": "eks-node-upgrade-manager-lambda",
-                            "EnvironmentVariables": "[{\"name\":\"ENVIRONMENT\",\"value\":\"dev\",\"type\":\"PLAINTEXT\"}]"
+                            "ProjectName": "codebuild-eks-manager-node-upgrade",
+                            "EnvironmentVariables": "[{\"name\":\"ENVIRONMENT\",\"value\":\"dev\",\"type\":\"PLAINTEXT\"},{\"name\":\"REGION\",\"value\":\"ap-northeast-2\",\"type\":\"PLAINTEXT\"}]"
                         },
                         "outputArtifacts": [
                             {
