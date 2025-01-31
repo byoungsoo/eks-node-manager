@@ -21,9 +21,9 @@
                         "runOrder": 1,
                         "configuration": {
                             "BranchName": "main",
-                            "ConnectionArn": "arn:aws:codestar-connections:ap-northeast-2:558846430793:connection/de5a574e-033c-428a-aed8-a3cbd0a48de5",
+                            "ConnectionArn": "arn:aws:codeconnections:ap-northeast-2:558846430793:connection/e0989281-7c58-4bee-a1fa-f31526b18f01",
                             "DetectChanges": "false",
-                            "FullRepositoryId": "byoungsoo/eks-management",
+                            "FullRepositoryId": "bys/eks-node-manager",
                             "OutputArtifactFormat": "CODE_ZIP"
                         },
                         "outputArtifacts": [
