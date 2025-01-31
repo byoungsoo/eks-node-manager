@@ -1,0 +1,98 @@
+version: 0.2
+env:
+  shell: bash
+  variables:
+    # AWS
+    DEFAULT_AWS_REGION: "ap-northeast-2"
+    CURRENT_VERSION: ""
+    TARGET_VERSION: ""
+    LAMBDA_FUNCTION_NAME: "EKSManagerNodeUpgradeLambda"
+    LAMBDA_ALIAS_NAME: "NodeUpgrade"
+    DEV_S3_BUCKET: "bys-dev-ap2-s3-eks-manager"
+    DEV_ACCOUNT_NO: "558846430793"
+    SHARED_S3_BUCKET: "bys-shared-s3-eks-manager"
+    SHARED_ACCOUNT_NO: "202949997891"
+    S3Path: "node"
+    APP_NAME: "eks_node_manager"
+
+phases:
+  install:
+    runtime-versions:
+      python: latest
+
+  pre_build:
+    on-failure: ABORT
+    commands:
+      - echo "Current Path"
+      - pwd
+        # Env
+      - |
+        if [ "${ENVIRONMENT}" == "dev" ]; then
+          export S3_BUCKET="${DEV_S3_BUCKET}";
+          export ACCOUNT_NO=${DEV_ACCOUNT_NO}; 
+        elif [ "${ENVIRONMENT}" == "shared" ]; then
+          export S3_BUCKET="${SHARED_S3_BUCKET}";
+          export ACCOUNT_NO=202949997891;
+        fi
+
+      - echo ${ENVIRONMENT}
+      - echo ${S3_BUCKET}
+      - echo ${ACCOUNT_NO}
+
+  build:
+    on-failure: ABORT
+    commands:
+
+      ### CodeArtifact ###
+      - |
+        if [ "${ENVIRONMENT}" == "dev" ]; then
+          aws codeartifact login --tool pip --repository bys-dev-codeartifact-python --domain ca-python --domain-owner 558846430793 --region ap-northeast-1
+        elif [ "${ENVIRONMENT}" == "shared" ]; then
+          echo "Later"
+        fi
+
+      ### Python Build ###
+      - echo Python Build started on `date`
+      - echo pwd `pwd`
+      - ls -al
+
+      - cp node_upgrade_lambda_function.py lambda_function.py
+      - cp node_upgrade.py node_upgrade.py
+      - pip install --target package -r requirements.txt
+      - zip -rq ${APP_NAME}.zip package
+      - zip ${APP_NAME}.zip lambda_function.py
+      - zip -r ${APP_NAME}.zip node_upgrade.py
+
+      - aws s3 cp ${APP_NAME}.zip s3://${S3_BUCKET}/${S3Path}/
+      - aws s3 cp cloudformation/cfn-node-upgrade.yaml s3://${S3_BUCKET}/${S3Path}/
+
+      ### Lambda Function Update ###
+      - CURRENT_VERSION=$(aws lambda get-alias --function-name ${LAMBDA_FUNCTION_NAME} --name ${LAMBDA_ALIAS_NAME} --query 'FunctionVersion' --output text)
+      - STATUS=$(aws lambda update-function-code --function-name ${LAMBDA_FUNCTION_NAME} --s3-bucket ${S3_BUCKET} --s3-key ${S3Path}/${APP_NAME}.zip --query 'LastUpdateStatus' --output text)
+      - echo ${STATUS}
+
+      - |
+        while [ "${STATUS}" != "Successful" ]
+        do
+          STATUS=$(aws lambda get-function --function-name ${LAMBDA_FUNCTION_NAME} --query 'Configuration.LastUpdateStatus' --output text)
+          echo "${STATUS}"
+          sleep 2
+        done
+
+      - TARGET_VERSION=$(aws lambda publish-version --function-name ${LAMBDA_FUNCTION_NAME} --query 'Version' --output text)
+      - echo "VERSION ${CURRENT_VERSION} ${TARGET_VERSION}"
+      
+
+      ### Make appspec.yml ###
+      - sed -i "s/<LAMBDA_FUNCTION_NAME>/${LAMBDA_FUNCTION_NAME}/g" codeseries/appspec.yml
+      - sed -i "s/<LAMBDA_ALIAS_NAME>/${LAMBDA_ALIAS_NAME}/g" codeseries/appspec.yml
+      - sed -i "s/<CURRENT_VERSION>/${CURRENT_VERSION}/g" codeseries/appspec.yml
+      - sed -i "s/<TARGET_VERSION>/${TARGET_VERSION}/g" codeseries/appspec.yml
+
+artifacts:
+  files:
+    - codeseries/appspec.yml
+  discard-paths: yes
+cache:
+  paths:
+    - '/package/**/*'

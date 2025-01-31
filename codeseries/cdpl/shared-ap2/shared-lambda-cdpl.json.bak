@@ -1,0 +1,153 @@
+{
+    "pipeline": {
+        "name": "eks-node-upgrade-manager-lambda",
+        "roleArn": "arn:aws:iam::202949997891:role/service-role/AWSCodePipelineServiceRole-ap-northeast-2-eks-node-upgrade-mana",
+        "artifactStore": {
+            "type": "S3",
+            "location": "codepipeline-ap-northeast-2-933561817206"
+        },
+        "stages": [
+            {
+                "name": "Source",
+                "actions": [
+                    {
+                        "name": "Source",
+                        "actionTypeId": {
+                            "category": "Source",
+                            "owner": "AWS",
+                            "provider": "CodeStarSourceConnection",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "BranchName": "main",
+                            "ConnectionArn": "arn:aws:codeconnections:ap-northeast-2:202949997891:connection/ee155753-961f-4db9-a52d-2d7dfc0b69ec",
+                            "DetectChanges": "false",
+                            "FullRepositoryId": "byoungsoo/eks-management",
+                            "OutputArtifactFormat": "CODE_ZIP"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "inputArtifacts": [],
+                        "region": "ap-northeast-2",
+                        "namespace": "SourceVariables"
+                    }
+                ]
+            },
+            {
+                "name": "Build",
+                "actions": [
+                    {
+                        "name": "Build",
+                        "actionTypeId": {
+                            "category": "Build",
+                            "owner": "AWS",
+                            "provider": "CodeBuild",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ProjectName": "eks-node-upgrade-manager-lambda",
+                            "EnvironmentVariables": "[{\"name\":\"ENVIRONMENT\",\"value\":\"shared\",\"type\":\"PLAINTEXT\"}]"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
+                        "inputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "region": "ap-northeast-2",
+                        "namespace": "BuildVariables"
+                    }
+                ]
+            },
+            {
+                "name": "Deploy",
+                "actions": [
+                    {
+                        "name": "Deploy",
+                        "actionTypeId": {
+                            "category": "Deploy",
+                            "owner": "AWS",
+                            "provider": "CodeDeploy",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ApplicationName": "bys-shared-cddp-lambda",
+                            "DeploymentGroupName": "EKSManagerNodeUpgrade"
+                        },
+                        "outputArtifacts": [],
+                        "inputArtifacts": [
+                            {
+                                "name": "BuildArtifact"
+                            }
+                        ],
+                        "region": "ap-northeast-2",
+                        "namespace": "DeployVariables"
+                    }
+                ]
+            }
+            ,{
+                "name": "Invoke",
+                "actions": [
+                    {
+                        "name": "Lambda",
+                        "actionTypeId": {
+                            "category": "Invoke",
+                            "owner": "AWS",
+                            "provider": "Lambda",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "FunctionName": "EKSManagerNodeUpgradeLambda"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "LambdaOutputArtifact"
+                            }
+                        ],
+                        "inputArtifacts": [],
+                        "region": "ap-northeast-2"
+                    }
+                ]
+            }
+        ],
+        "version": 1,
+        "executionMode": "QUEUED",
+        "pipelineType": "V2",
+        "triggers": [
+            {
+                "providerType": "CodeStarSourceConnection",
+                "gitConfiguration": {
+                    "sourceActionName": "Source",
+                    "push": [
+                        {
+                            "branches": {
+                                "includes": [
+                                    "master"
+                                ]
+                            },
+                            "filePaths": {
+                                "excludes": [
+                                    "cloudformation/**",
+                                    "codeseries/cdpl/**",
+                                    "script/**",
+                                    "**/*.md"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

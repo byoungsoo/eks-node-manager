@@ -1,0 +1,108 @@
+{
+    "pipeline": {
+        "name": "eks-node-upgrade-manager-cfn",
+        "roleArn": "arn:aws:iam::558846430793:role/service-role/AWSCodePipelineServiceRole-ap-northeast-2-eks-node-upgrade-mana",
+        "artifactStore": {
+            "type": "S3",
+            "location": "codepipeline-ap-northeast-2-373623670118"
+        },
+        "stages": [
+            {
+                "name": "Source",
+                "actions": [
+                    {
+                        "name": "Source",
+                        "actionTypeId": {
+                            "category": "Source",
+                            "owner": "AWS",
+                            "provider": "CodeStarSourceConnection",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "BranchName": "main",
+                            "ConnectionArn": "arn:aws:codestar-connections:ap-northeast-2:558846430793:connection/de5a574e-033c-428a-aed8-a3cbd0a48de5",
+                            "DetectChanges": "false",
+                            "FullRepositoryId": "byoungsoo/eks-management",
+                            "OutputArtifactFormat": "CODE_ZIP"
+                        },
+                        "outputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "inputArtifacts": [],
+                        "region": "ap-northeast-2",
+                        "namespace": "SourceVariables"
+                    }
+                ],
+                "onFailure": {
+                    "result": "RETRY"
+                }
+            },
+            {
+                "name": "Deploy",
+                "actions": [
+                    {
+                        "name": "Deploy",
+                        "actionTypeId": {
+                            "category": "Deploy",
+                            "owner": "AWS",
+                            "provider": "CloudFormation",
+                            "version": "1"
+                        },
+                        "runOrder": 1,
+                        "configuration": {
+                            "ActionMode": "CREATE_UPDATE",
+                            "Capabilities": "CAPABILITY_NAMED_IAM",
+                            "ParameterOverrides": "{\"Alias\": \"bys\", \"AWSAccount\": \"558846430793\", \"CodeS3Bucket\": \"bys-dev-s3-eks-manager\"}",
+                            "RoleArn": "arn:aws:iam::558846430793:role/cfnrole",
+                            "StackName": "eks-manager-node-upgrade",
+                            "TemplatePath": "SourceArtifact::node-upgrade/cloudformation/cfn-node-upgrade.yaml"
+                        },
+                        "outputArtifacts": [],
+                        "inputArtifacts": [
+                            {
+                                "name": "SourceArtifact"
+                            }
+                        ],
+                        "region": "ap-northeast-2",
+                        "namespace": "DeployVariables"
+                    }
+                ],
+                "onFailure": {
+                    "result": "FAIL"
+                }
+            }
+        ],
+        "executionMode": "QUEUED",
+        "pipelineType": "V2",
+        "triggers": [
+            {
+                "providerType": "CodeStarSourceConnection",
+                "gitConfiguration": {
+                    "sourceActionName": "Source",
+                    "push": [
+                        {
+                            "branches": {
+                                "includes": [
+                                    "main"
+                                ]
+                            },
+                            "filePaths": {
+                                "includes": [
+                                    "cloudformation/**"
+                                ],
+                                "excludes": [
+                                    "codeseries/cdpl/**",
+                                    "script/**",
+                                    "**/*.md"
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}
