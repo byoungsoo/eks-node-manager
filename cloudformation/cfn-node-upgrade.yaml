@@ -207,15 +207,21 @@ Resources:
                 - scheduler.amazonaws.com
             Action:
               - sts:AssumeRole
-      Policies:
-        - PolicyName: EventBridgeSchedulerExecutionPolicy-EKSManagerNodeUpgrade
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - 'lambda:InvokeFunction'
-                Resource:
-                  - !Sub 'arn:aws:lambda:ap-northeast-2:${AWSAccount}:function:*'
       RoleName:
         Ref: EKSManagerNodeUpgradeSchedulerRoleName
+
+  SchedulerPolicy:
+    Type: AWS::IAM::Policy
+    Condition: CreateSchedulerIAMRole  # 역할을 생성할 경우에만 정책 생성
+    Properties:
+      PolicyName: EventBridgeSchedulerExecutionPolicy-EKSManagerNodeUpgrade
+      Roles:
+        - !Ref SchedulerIAMRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'lambda:InvokeFunction'
+            Resource:
+              - !Sub 'arn:aws:lambda:ap-northeast-2:${AWSAccount}:function:*'
