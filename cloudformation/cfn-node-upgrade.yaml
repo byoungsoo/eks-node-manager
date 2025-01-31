@@ -53,17 +53,20 @@ Parameters:
 
 
 Conditions:
-  CreateEKSNodeUpgradeLambdaIAMRole: !Equals
-    - !Ref EKSManagerNodeUpgradeLambdaRoleName
-    - "EKSManagerNodeUpgradeLambdaRole"
+  CreateEKSNodeUpgradeLambdaIAMRole: !Not
+    - !Equals
+      - !Ref EKSManagerNodeUpgradeLambdaRoleName
+      - "EKSManagerNodeUpgradeLambdaRole"
 
-  CreateEKSManagerEKSFullAccessPolicy: !Equals
-    - !Ref EKSManagerPolicyName
-    - "EKSManagerEKSFullAccessPolicy"
+  CreateEKSManagerEKSFullAccessPolicy: !Not
+    - !Equals
+      - !Ref EKSManagerPolicyName
+      - "EKSManagerEKSFullAccessPolicy"
 
-  CreateSchedulerIAMRole: !Equals
-    - !Ref EKSManagerNodeUpgradeSchedulerRoleName
-    - "EKSManagerNodeUpgradeSchedulerRole"
+  CreateSchedulerIAMRole: !Not
+    - !Equals
+      - !Ref EKSManagerNodeUpgradeSchedulerRoleName
+      - "EKSManagerNodeUpgradeSchedulerRole"
 
 Resources:
 ## Lambda
