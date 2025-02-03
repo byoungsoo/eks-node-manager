@@ -73,7 +73,7 @@ phases:
       - zip -r ${APP_NAME}.zip node_upgrade.py
 
       - aws s3 cp ${APP_NAME}.zip s3://${S3_BUCKET}/${S3Path}/
-      - aws s3 cp cloudformation/cfn-node-upgrade.yaml s3://${S3_BUCKET}/${S3Path}/
+      - aws s3 cp cloudformation/${ENVIRONMENT}/cfn-node-upgrade.yaml s3://${S3_BUCKET}/${S3Path}/
 
       ### Lambda Function Update ###
       - CURRENT_VERSION=$(aws lambda get-alias --function-name ${LAMBDA_FUNCTION_NAME} --name ${LAMBDA_ALIAS_NAME} --query 'FunctionVersion' --output text)
