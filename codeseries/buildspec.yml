@@ -29,20 +29,23 @@ phases:
     commands:
       - echo "Current Path"
       - pwd
-        # Env
-      - |
-        if [ "${ENVIRONMENT}" == "dev" && "${REGION}" == "ap-northeast-2" ]; then
-          export ACCOUNT_NO=${DEV_ACCOUNT_NO};
-          export S3_BUCKET=${DEV_AP2_S3_BUCKET};
-        elif [ "${ENVIRONMENT}" == "dev" && "${REGION}" == "us-east-1" ]; then
-          export ACCOUNT_NO=${DEV_ACCOUNT_NO};
-          export S3_BUCKET=${DEV_UE1_S3_BUCKET};
-        elif [ "${ENVIRONMENT}" == "shared" && "${REGION}" == "ap-northeast-2" ]; then
-          export ACCOUNT_NO=${SHARED_ACCOUNT_NO};
-          export S3_BUCKET=${SHARED_AP2_S3_BUCKET};
-        fi
 
       - echo ${ENVIRONMENT}
+      - echo ${REGION}
+
+        # Env
+      - |
+        if [ "${ENVIRONMENT}" == "dev" ] && [ "${REGION}" == "ap-northeast-2" ]; then
+            export ACCOUNT_NO=${DEV_ACCOUNT_NO}
+            export S3_BUCKET=${DEV_AP2_S3_BUCKET}
+        elif [ "${ENVIRONMENT}" == "dev" ] && [ "${REGION}" == "us-east-1" ]; then
+            export ACCOUNT_NO=${DEV_ACCOUNT_NO}
+            export S3_BUCKET=${DEV_UE1_S3_BUCKET}
+        elif [ "${ENVIRONMENT}" == "shared" ] && [ "${REGION}" == "ap-northeast-2" ]; then
+            export ACCOUNT_NO=${SHARED_ACCOUNT_NO}
+            export S3_BUCKET=${SHARED_AP2_S3_BUCKET}
+        fi
+
       - echo ${S3_BUCKET}
       - echo ${ACCOUNT_NO}
 
