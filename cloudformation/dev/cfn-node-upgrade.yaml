@@ -2,8 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   AWSAccount:
     Type: "String"
-    Description: "AWSAccount"
-    Default: "558846430793"
+    Description: "558846430793"
   CodeS3Bucket:
     Type: "String"
     Description: "S3 Bucket Name including zip code."
