@@ -8,10 +8,14 @@ env:
     TARGET_VERSION: ""
     LAMBDA_FUNCTION_NAME: "EKSManagerNodeUpgradeLambda"
     LAMBDA_ALIAS_NAME: "NodeUpgrade"
-    DEV_S3_BUCKET: "bys-dev-ap2-s3-eks-manager"
+
     DEV_ACCOUNT_NO: "558846430793"
-    SHARED_S3_BUCKET: "bys-shared-s3-eks-manager"
+    DEV_AP2_S3_BUCKET: "bys-dev-ap2-s3-eks-manager"
+    DEV_UE1_S3_BUCKET: "bys-dev-ue1-s3-eks-manager"
+
     SHARED_ACCOUNT_NO: "202949997891"
+    SHARED_AP2_S3_BUCKET: "bys-shared-ap2-s3-eks-manager"
+
     S3Path: "node"
     APP_NAME: "eks_node_manager"
 
@@ -27,12 +31,15 @@ phases:
       - pwd
         # Env
       - |
-        if [ "${ENVIRONMENT}" == "dev" ]; then
-          export S3_BUCKET="${DEV_S3_BUCKET}";
-          export ACCOUNT_NO=${DEV_ACCOUNT_NO}; 
-        elif [ "${ENVIRONMENT}" == "shared" ]; then
-          export S3_BUCKET="${SHARED_S3_BUCKET}";
-          export ACCOUNT_NO=202949997891;
+        if [ "${ENVIRONMENT}" == "dev" && "${REGION}" == "ap-northeast-2" ]; then
+          export ACCOUNT_NO=${DEV_ACCOUNT_NO};
+          export S3_BUCKET=${DEV_AP2_S3_BUCKET};
+        elif [ "${ENVIRONMENT}" == "dev" && "${REGION}" == "us-east-1" ]; then
+          export ACCOUNT_NO=${DEV_ACCOUNT_NO};
+          export S3_BUCKET=${DEV_UE1_S3_BUCKET};
+        elif [ "${ENVIRONMENT}" == "shared" && "${REGION}" == "ap-northeast-2" ]; then
+          export ACCOUNT_NO=${SHARED_ACCOUNT_NO};
+          export S3_BUCKET=${SHARED_AP2_S3_BUCKET};
         fi
 
       - echo ${ENVIRONMENT}

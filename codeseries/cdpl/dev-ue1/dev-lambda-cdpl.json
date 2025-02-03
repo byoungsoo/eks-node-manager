@@ -1,10 +1,10 @@
 {
     "pipeline": {
         "name": "eks-node-upgrade-manager-lambda",
-        "roleArn": "arn:aws:iam::558846430793:role/service-role/AWSCodePipelineServiceRole-ap-northeast-2-eks-node-upgrade-mana",
+        "roleArn": "arn:aws:iam::558846430793:role/service-role/AWSCodePipelineServiceRole-us-east-1-eks-node-upgrade-manager-l",
         "artifactStore": {
             "type": "S3",
-            "location": "codepipeline-ap-northeast-2-373623670118"
+            "location": "codepipeline-us-east-1-711261874010"
         },
         "stages": [
             {
@@ -21,9 +21,9 @@
                         "runOrder": 1,
                         "configuration": {
                             "BranchName": "main",
-                            "ConnectionArn": "arn:aws:codestar-connections:ap-northeast-2:558846430793:connection/de5a574e-033c-428a-aed8-a3cbd0a48de5",
+                            "ConnectionArn": "arn:aws:codeconnections:us-east-1:558846430793:connection/3b5f3566-d8f5-4336-87b0-1ceb7096d4e6",
                             "DetectChanges": "false",
-                            "FullRepositoryId": "byoungsoo/eks-management",
+                            "FullRepositoryId": "bys/eks-node-manager",
                             "OutputArtifactFormat": "CODE_ZIP"
                         },
                         "outputArtifacts": [
@@ -32,7 +32,7 @@
                             }
                         ],
                         "inputArtifacts": [],
-                        "region": "ap-northeast-2",
+                        "region": "us-east-1",
                         "namespace": "SourceVariables"
                     }
                 ]
@@ -50,8 +50,8 @@
                         },
                         "runOrder": 1,
                         "configuration": {
-                            "ProjectName": "eks-node-upgrade-manager-lambda",
-                            "EnvironmentVariables": "[{\"name\":\"ENVIRONMENT\",\"value\":\"dev\",\"type\":\"PLAINTEXT\"}]"
+                            "ProjectName": "codebuild-eks-manager-node-upgrade",
+                            "EnvironmentVariables": "[{\"name\":\"ENVIRONMENT\",\"value\":\"dev\",\"type\":\"PLAINTEXT\"},{\"name\":\"REGION\",\"value\":\"us-east-1\",\"type\":\"PLAINTEXT\"}]"
                         },
                         "outputArtifacts": [
                             {
@@ -63,7 +63,7 @@
                                 "name": "SourceArtifact"
                             }
                         ],
-                        "region": "ap-northeast-2",
+                        "region": "us-east-1",
                         "namespace": "BuildVariables"
                     }
                 ]
@@ -90,13 +90,12 @@
                                 "name": "BuildArtifact"
                             }
                         ],
-                        "region": "ap-northeast-2",
+                        "region": "us-east-1",
                         "namespace": "DeployVariables"
                     }
                 ]
             }
         ],
-        "version": 1,
         "executionMode": "QUEUED",
         "pipelineType": "V2",
         "triggers": [
