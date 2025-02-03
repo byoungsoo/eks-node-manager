@@ -1,6 +1,6 @@
 #!/bin/bash
 
-S3_BUCKET="bys-dev-ap2-s3-eks-manager"
+S3_BUCKET="bys-dev-ue1-s3-eks-manager"
 S3_PATH="node"
 BASE_DIRECTORY="node-upgrade"
 APP_NAME="node_upgrade"

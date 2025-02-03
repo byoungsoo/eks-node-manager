@@ -55,7 +55,7 @@
                         "configuration": {
                             "ActionMode": "CREATE_UPDATE",
                             "Capabilities": "CAPABILITY_NAMED_IAM",
-                            "ParameterOverrides": "{\"Alias\": \"bys\", \"AWSAccount\": \"558846430793\", \"CodeS3Bucket\": \"bys-dev-s3-eks-manager\"}",
+                            "ParameterOverrides": "{\"Alias\": \"bys\", \"AWSAccount\": \"558846430793\", \"CodeS3Bucket\": \"bys-dev-ap2-s3-eks-manager\"}",
                             "RoleArn": "arn:aws:iam::558846430793:role/cfnrole",
                             "StackName": "eks-manager-node-upgrade",
                             "TemplatePath": "SourceArtifact::cloudformation/cfn-node-upgrade.yaml"
