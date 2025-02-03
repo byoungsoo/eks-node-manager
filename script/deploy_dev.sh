@@ -22,7 +22,7 @@ zip ${PACKAGE_NAME}.zip lambda_function.py
 zip -r ${PACKAGE_NAME}.zip ${APP_NAME}.py
 
 aws s3 cp ${PACKAGE_NAME}.zip s3://${S3_BUCKET}/${S3_PATH}/
-aws s3 cp cloudformation/${CFN_NAME} s3://${S3_BUCKET}/${S3_PATH}/
+aws s3 cp cloudformation/dev/${CFN_NAME} s3://${S3_BUCKET}/${S3_PATH}/
 
 rm -rf lambda_function.py
 rm -rf ${PACKAGE_NAME}.zip
