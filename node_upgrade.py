@@ -38,13 +38,13 @@ def get_latest_ami(eksClusterVersion, amiType):
     elif amiType == "AL2_x86_64_GPU":
         name = "/aws/service/eks/optimized-ami/" + eksClusterVersion + "/amazon-linux-2-gpu/recommended/image_id"
     elif amiType == "AL2_ARM_64":
-        name = "/aws/service/eks/optimized-ami" + eksClusterVersion + "/amazon-linux-2-arm64/recommended/image_id"
+        name = "/aws/service/eks/optimized-ami/" + eksClusterVersion + "/amazon-linux-2-arm64/recommended/image_id"
     elif amiType == "BOTTLEROCKET_x86_64":
         name = "/aws/service/bottlerocket/aws-k8s-" + eksClusterVersion + "/x86_64/latest/image_id"
     elif amiType == "BOTTLEROCKET_ARM_64":
         name = "/aws/service/bottlerocket/aws-k8s-" + eksClusterVersion + "/arm64/latest/image_id"
     elif amiType == "BOTTLEROCKET_x86_64_NVIDIA":
-        name = "/aws/service/bottlerocket/aws-k8s-" + eksClusterVersion + "-nvidia/arm64/latest/image_id"
+        name = "/aws/service/bottlerocket/aws-k8s-" + eksClusterVersion + "-nvidia/x86_64/latest/image_id"
     elif amiType == "BOTTLEROCKET_ARM_64_NVIDIA":
         name = "/aws/service/bottlerocket/aws-k8s-" + eksClusterVersion + "-nvidia/arm64/latest/image_id"
     elif amiType == "AL2023_x86_64_STANDARD":
@@ -60,13 +60,13 @@ def get_latest_ami(eksClusterVersion, amiType):
     elif amiType == "WINDOWS_FULL_2022_x86_64":
         name = "/aws/service/ami-windows-latest/Windows_Server-2022-English-Full-EKS_Optimized-" + eksClusterVersion + "/image_id"
 
-    latest_ami_res = ssmClient.get_parameter(
-        Name=name
-    )
-    # print("LatestAMI: ", latest_ami_res['Parameter']['Name'])
-
-    # Value: ami-02ce95f7f23d880fc
-    return latest_ami_res['Parameter']['Value']
+    try:
+        latest_ami_res = ssmClient.get_parameter(Name=name)
+        return latest_ami_res['Parameter']['Value']
+    except Exception as e:
+        print(f"ParameterNotFound for {amiType} with path: {name}")
+        print(f"Error: {e}")
+        return None
 
 
 def need_update(current_ami_id, latest_ami_id):
@@ -79,7 +79,7 @@ def need_update(current_ami_id, latest_ami_id):
 def update_mng_nodegroup():
     eks_clusters_res = eks_client.list_clusters()
     eks_clusters = eks_clusters_res['clusters']
-    exclude_eks_cluster = os.environ['ExcludeEKSClusters']
+    exclude_eks_cluster = os.environ.get('ExcludeEKSClusters', '').split(',') if os.environ.get('ExcludeEKSClusters') else []
     
     target_eks_clusters = [cluster for cluster in eks_clusters if cluster not in exclude_eks_cluster]
     for eks_cluster in target_eks_clusters:
@@ -123,6 +123,9 @@ def update_mng_nodegroup():
                 asg_name = node_group_details_res['nodegroup']['resources']['autoScalingGroups'][0]['name']
 
                 latest_ami_id = get_latest_ami(eks_cluster_version, ami_type)
+                if latest_ami_id is None:
+                    print(f"Skip {eks_cluster}-{node_group}: Cannot get latest AMI for {ami_type}")
+                    continue
                 current_ami_id = get_current_ami(asg_name)
                 need_update_flag = need_update(current_ami_id, latest_ami_id)
 
